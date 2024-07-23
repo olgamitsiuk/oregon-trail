@@ -1,0 +1,116 @@
+import pygame
+import sys
+
+# Initialize Pygame
+pygame.init()
+
+# Set up the display
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("THE OREGON TRAIL: PREPARE FOR DYSENTERY EDITION")
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (200, 200, 200)
+ICON_COLOR = (100, 100, 100)
+
+# Fonts
+title_font = pygame.font.Font(None, 36)
+button_font = pygame.font.Font(None, 24)
+
+# Button class
+class Button:
+    def __init__(self, x, y, width, height, text, icon_func, rating):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.text = text
+        self.icon_func = icon_func
+        self.rating = rating
+        self.icon_surface = pygame.Surface((30, 30), pygame.SRCALPHA)
+        self.icon_func(self.icon_surface)
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, GRAY, self.rect)
+        surface.blit(self.icon_surface, (self.rect.x + 10, self.rect.y + 10))
+        text_surf = button_font.render(self.text, True, BLACK)
+        surface.blit(text_surf, (self.rect.x + 50, self.rect.y + 15))
+        
+        # Draw star rating
+        for i in range(5):
+            star_color = ICON_COLOR if i < self.rating else GRAY
+            pygame.draw.polygon(surface, star_color, [
+                (self.rect.right - 80 + i*15, self.rect.y + 20),
+                (self.rect.right - 75 + i*15, self.rect.y + 15),
+                (self.rect.right - 70 + i*15, self.rect.y + 20),
+                (self.rect.right - 75 + i*15, self.rect.y + 25)
+            ])
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                print(f"Clicked: {self.text}")
+
+# Icon drawing functions
+def draw_path_icon(surface):
+    pygame.draw.line(surface, ICON_COLOR, (5, 25), (25, 5), 2)
+    pygame.draw.circle(surface, ICON_COLOR, (5, 25), 3)
+    pygame.draw.circle(surface, ICON_COLOR, (25, 5), 3)
+
+def draw_learn_icon(surface):
+    pygame.draw.rect(surface, ICON_COLOR, (5, 5, 20, 25), 2)
+    pygame.draw.line(surface, ICON_COLOR, (10, 10), (20, 10), 2)
+    pygame.draw.line(surface, ICON_COLOR, (10, 15), (20, 15), 2)
+    pygame.draw.line(surface, ICON_COLOR, (10, 20), (20, 20), 2)
+
+def draw_top_ten_icon(surface):
+    for i in range(3):
+        pygame.draw.rect(surface, ICON_COLOR, (5 + i*8, 20 - i*5, 6, 5 + i*5))
+
+def draw_sound_icon(surface):
+    pygame.draw.polygon(surface, ICON_COLOR, [(5, 15), (10, 10), (10, 20), (5, 15)])
+    pygame.draw.arc(surface, ICON_COLOR, (10, 5, 15, 20), -0.5, 0.5, 2)
+
+def draw_options_icon(surface):
+    pygame.draw.circle(surface, ICON_COLOR, (15, 15), 10, 2)
+    pygame.draw.line(surface, ICON_COLOR, (15, 5), (15, 8), 2)
+    pygame.draw.line(surface, ICON_COLOR, (15, 22), (15, 25), 2)
+    pygame.draw.line(surface, ICON_COLOR, (5, 15), (8, 15), 2)
+    pygame.draw.line(surface, ICON_COLOR, (22, 15), (25, 15), 2)
+
+def draw_end_icon(surface):
+    pygame.draw.line(surface, ICON_COLOR, (5, 5), (25, 25), 3)
+    pygame.draw.line(surface, ICON_COLOR, (5, 25), (25, 5), 3)
+
+# Create buttons
+buttons = [
+    Button(50, 100, 700, 50, "1. Travel the Trail", draw_path_icon, 5),
+    Button(50, 170, 700, 50, "2. Learn About the Trail", draw_learn_icon, 4),
+    Button(50, 240, 700, 50, "3. See the Oregon Top Ten", draw_top_ten_icon, 3),
+    Button(50, 310, 700, 50, "4. Turn Sound Off", draw_sound_icon, 5),
+    Button(50, 380, 700, 50, "5. Choose Management Options", draw_options_icon, 4),
+    Button(50, 450, 700, 50, "6. End", draw_end_icon, 5)
+]
+
+# Main game loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        for button in buttons:
+            button.handle_event(event)
+
+    screen.fill(WHITE)
+
+    # Draw title
+    title_surf = title_font.render("THE OREGON TRAIL: PREPARE FOR DYSENTERY EDITION", True, BLACK)
+    screen.blit(title_surf, (WIDTH // 2 - title_surf.get_width() // 2, 30))
+
+    # Draw buttons
+    for button in buttons:
+        button.draw(screen)
+
+    pygame.display.flip()
+
+pygame.quit()
+sys.exit()
